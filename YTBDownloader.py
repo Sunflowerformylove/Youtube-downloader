@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
-from threading import *
 from tkinter import ttk
 from ctypes import windll
 from pytube import YouTube
+import threading
 import shutil
 import time
 import os
@@ -22,7 +22,7 @@ def close_window(event):
     main.destroy()
 
 #Download video files:
-def Download_Vid(event):
+def Download_Vid():
     linkVid = link_receiver.get()
     mp4 = YouTube(linkVid)
     mp4.streams.filter(adaptive = True, file_extension = 'mp4')
@@ -30,7 +30,7 @@ def Download_Vid(event):
     stream.download()
 
 #Download audio files:
-def Download_Audio(event):
+def Download_Audio():
     link_audio = link_receiver.get()
     mp3 = YouTube(link_audio)
     stream = mp3.streams.filter(only_audio = True, file_extension ='webm').first()
@@ -44,6 +44,8 @@ def Pin_win(event):
 def Unpin_win(event):
     main.attributes('-topmost',0)
 #GUI control
+thread_1 = threading.Thread(target=Download_Vid)
+thread_2 = threading.Thread(target=Download_Audio)
 try:
     windll.shcore.SetProcessDpiAwareness(1)
 finally:
@@ -79,8 +81,7 @@ finally:
     unpin.place(x = 1210, y = 0)
     pin.bind('<Button>', Pin_win)
     unpin.bind('<Button>', Unpin_win)
-    Download_vid.bind('<Button>',Download_Vid)
-    Download_audio.bind('<Button>',Download_Audio)
+    Download_vid.bind('<Button>',lambda event: thread_1.start())
+    Download_audio.bind('<Button>',lambda event: thread_2.start())
     quit.bind('<Button>',close_window)
     main.mainloop()
-    tk.mainloop()
